@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Circle Generator with KML, Marker & SEO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Generate custom circles on a map with KML export and marker support. Create and download geospatial data with ease." />
+  <meta name="keywords" content="map, circle generator, KML, geospatial, leaflet map" />
+  <meta name="author" content="Circle Generator App" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    #map { height: 600px; border-radius: 1rem; box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15); }
+    .form-container { max-width: 700px; }
+    .btn { transition: all 0.3s ease; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
+    .input-focus { transition: all 0.3s ease; }
+    .input-focus:focus { transform: scale(1.02); }
+    .header-bg { background: linear-gradient(135deg, #6B7280, #3B82F6); }
+    .footer-bg { background: linear-gradient(135deg, #1F2937, #111827); }
+    @media (max-width: 640px) {
+      #map { height: 400px; }
+      .form-container { max-width: 100%; }
+    }
+  </style>
+  <!-----------Coded By : Shofikul Islam-------
+  -------------Founder OF: TEAM X 1337---------
+  ----------->
+</head>
+<body class="bg-gradient-to-b from-gray-50 to-gray-200 font-sans antialiased">
+  <div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="header-bg text-white py-8">
+      <div class="container mx-auto px-4">
+        <h1 class="text-4xl font-extrabold text-center tracking-tight">Circle Generator</h1>
+        <p class="text-center mt-3 text-xl font-light">Craft stunning map circles with KML export and marker support</p>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-10 flex-grow">
+      <div class="flex flex-col lg:flex-row gap-10">
+        <!-- Form Section -->
+        <div class="form-container bg-white p-8 rounded-xl shadow-2xl">
+          <form id="circleForm" class="space-y-6">
+            <div>
+              <label for="circleTitle" class="block text-sm font-semibold text-gray-800">Title</label>
+              <input
+                type="text"
+                id="circleTitle"
+                placeholder="Enter circle title"
+                required
+                class="input-focus mt-2 block w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+              />
+            </div>
+            <div>
+              <label for="circleDesc" class="block text-sm font-semibold text-gray-800">Description</label>
+              <textarea
+                id="circleDesc"
+                placeholder="Enter description"
+                rows="3"
+                class="input-focus mt-2 block w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+              ></textarea>
+            </div>
+            <div>
+              <label for="latlng" class="block text-sm font-semibold text-gray-800">Latitude/Longitude</label>
+              <input
+                type="text"
+                id="latlng"
+                placeholder="25.22673, 89.57309"
+                required
+                class="input-focus mt-2 block w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+              />
+            </div>
+            <div class="flex gap-6">
+              <div class="flex-1">
+                <label for="radius" class="block text-sm font-semibold text-gray-800">Radius</label>
+                <input
+                  type="number"
+                  id="radius"
+                  required
+                  class="input-focus mt-2 block w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+                />
+              </div>
+              <div class="flex-1">
+                <label for="unit" class="block text-sm font-semibold text-gray-800">Units</label>
+                <select
+                  id="unit"
+                  class="input-focus mt-2 block w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+                >
+                  <option value="meters">Meters</option>
+                  <option value="kilometers">Kilometers</option>
+                  <option value="miles">Miles</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="circleColor" class="block text-sm font-semibold text-gray-800">Circle Color</label>
+              <input
+                type="color"
+                id="circleColor"
+                value="#3f51b5"
+                class="input-focus mt-2 block w-full h-12 p-1 border border-gray-200 rounded-lg"
+              />
+            </div>
+            <div class="flex gap-6">
+              <button
+                type="submit"
+                class="btn flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+              >
+                Generate Circle
+              </button>
+              <button
+                type="button"
+                id="downloadBtn"
+                class="btn flex-1 bg-gray-600 text-white py-3 px-6 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 font-medium"
+              >
+                Download KML
+              </button>
+            </div>
+            <div>
+              <a
+                href="https://www.google.com/maps/d/?hl=en"
+                target="_blank"
+                class="block text-center text-sm font-medium text-blue-600 hover:text-blue-800 underline"
+              >
+                Open Map Citation
+              </a>
+            </div>
+          </form>
+        </div>
+        <!-- Map Section -->
+        <div class="flex-grow">
+          <div id="map" class="w-full"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-bg text-white py-6">
+      <div class="container mx-auto px-4 text-center">
+        <p class="text-sm">&copy; 2025 Circle Generator. All rights reserved.<br><b style="color: cyan;">Developed BY: <a href="https://xofikul.is-a.dev/">Shofikul Islam</a></b></p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map("map").setView([23.8103, 90.4125], 6);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+    }).addTo(map);
+
+    let circle;
+    let marker;
+
+    function convertRadius(radius, unit) {
+      if (unit === "kilometers") return radius * 1000;
+      if (unit === "miles") return radius * 1609.34;
+      return radius;
+    }
+
+    function hexToKmlColor(hex) {
+      hex = hex.replace("#", "");
+      const r = hex.substring(0, 2);
+      const g = hex.substring(2, 4);
+      const b = hex.substring(4, 6);
+      const a = "7F"; // semi-transparent
+      return a + b + g + r;
+    }
+
+    function generateCircleKML(center, radiusInMeters, colorHex, title, description, points = 64) {
+      const coords = [];
+      for (let i = 0; i <= points; i++) {
+        const angle = (i * 360) / points;
+        const rad = (angle * Math.PI) / 180;
+        const dx = radiusInMeters * Math.cos(rad);
+        const dy = radiusInMeters * Math.sin(rad);
+
+        const latOffset = dy / 111320;
+        const lngOffset = dx / (111320 * Math.cos((center.lat * Math.PI) / 180));
+
+        const lat = center.lat + latOffset;
+        const lng = center.lng + lngOffset;
+        coords.push(`${lng},${lat},0`);
+      }
+
+      const kmlColor = hexToKmlColor(colorHex);
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Placemark>
+    <name>${title}</name>
+    <description>${description}</description>
+    <Style>
+      <LineStyle>
+        <color>${kmlColor}</color>
+        <width>5</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>${kmlColor}</color>
+      </PolyStyle>
+    </Style>
+    <Polygon>
+      <outerBoundaryIs>
+        <LinearRing>
+          <coordinates>
+            ${coords.join(" ")}
+          </coordinates>
+        </LinearRing>
+      </outerBoundaryIs>
+    </Polygon>
+  </Placemark>
+</kml>`;
+    }
+
+    document.getElementById("circleForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      
+      // Get lat/lng input and split
+      const latlngInput = document.getElementById("latlng").value.trim();
+      const [latStr, lngStr] = latlngInput.split(",").map(v => v.trim());
+      const lat = parseFloat(latStr);
+      const lng = parseFloat(lngStr);
+
+      if (isNaN(lat) || isNaN(lng)) {
+        alert("Please enter a valid Latitude,Longitude (example: 25.22673, 89.57309)");
+        return;
+      }
+
+      const radius = parseFloat(document.getElementById("radius").value);
+      const unit = document.getElementById("unit").value;
+      const color = document.getElementById("circleColor").value;
+      const title = document.getElementById("circleTitle").value;
+      const description = document.getElementById("circleDesc").value;
+      const convertedRadius = convertRadius(radius, unit);
+
+      // Remove previous circle and marker
+      if (circle) map.removeLayer(circle);
+      if (marker) map.removeLayer(marker);
+
+      // Draw circle
+      circle = L.circle([lat, lng], {
+        color: color,
+        fillColor: color,
+        fillOpacity: 0.4,
+        radius: convertedRadius,
+      }).addTo(map);
+
+      // Add location marker
+      marker = L.marker([lat, lng]).addTo(map);
+      marker.bindPopup(`<b>${title}</b><br>${description}`).openPopup();
+
+      map.setView([lat, lng], 13);
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", function () {
+      if (!circle) return alert("Generate a circle first!");
+      const center = circle.getLatLng();
+      const radius = circle.getRadius();
+      const color = document.getElementById("circleColor").value;
+      const title = document.getElementById("circleTitle").value;
+      const description = document.getElementById("circleDesc").value;
+      const kml = generateCircleKML(center, radius, color, title, description);
+
+      const blob = new Blob([kml], { type: "application/vnd.google-earth.kml+xml" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "circle.kml";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
